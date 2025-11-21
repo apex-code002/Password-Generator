@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeepOcean Security – Professional Password Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    /* Light Theme */
+    --bg: #f4f7fb;
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --text: #222;
+    --accent: #0077b6;
+    --primary: #0096c7;
+    --secondary: #023e8a;
+    --border: rgba(0,0,0,0.1);
+    --shadow: 0 6px 25px rgba(0,0,0,0.15);
+}
+
+/* Dark Theme Overrides */
+body.dark {
+    --bg: radial-gradient(circle at top left, #03045e, #000814 80%);
+    --card-bg: rgba(255,255,255,0.08);
+    --text: #e9ecef;
+    --accent: #90e0ef;
+    --primary: #00b4d8;
+    --secondary: #0077b6;
+    --border: rgba(255,255,255,0.2);
+    --shadow: 0 8px 32px rgba(0,0,0,0.35);
+}
+
+* { box-sizing: border-box; transition: all 0.3s ease; }
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+.header {
+    text-align: center;
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+}
+.header h2 { margin: 0; color: var(--accent); font-weight: 700; }
+.container {
+    background: var(--card-bg);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--border);
+    padding: 40px 45px;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    width: 420px;
+    max-width: 90%;
+    text-align: center;
+    animation: fadeIn 1s ease;
+}
+@keyframes fadeIn {
+    from {opacity: 0; transform: translateY(20px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+h1 { font-size: 1.8em; color: var(--accent); margin-bottom: 15px; }
+.input-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 15px 0;
+}
+input[type=number] {
+    width: 80px;
+    padding: 8px;
+    font-size: 1em;
+    border-radius: 8px;
+    border: none;
+    text-align: center;
+    background: rgba(255,255,255,0.1);
+    color: var(--text);
+    outline: none;
+}
+input[type=number]:focus { box-shadow: 0 0 6px var(--accent); }
+.options {
+    text-align: left;
+    margin: 15px 0 25px;
+    font-size: 0.95em;
+}
+.options label {
+    display: flex;
+    align-items: center;
+    margin: 8px 0;
+    cursor: pointer;
+}
+.options input {
+    margin-right: 10px;
+    transform: scale(1.2);
+    accent-color: var(--accent);
+}
+button {
+    padding: 10px 22px;
+    font-size: 1em;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    margin: 5px;
+    cursor: pointer;
+    color: #fff;
+    transition: 0.3s;
+}
+#generateBtn { background: var(--primary); }
+#generateBtn:hover { background: var(--secondary); transform: translateY(-2px); }
+#copyBtn { background: #48cae4; color: #001219; }
+#copyBtn:hover { background: #00b4d8; }
+
+#password-display {
+    background: rgba(0,0,0,0.1);
+    padding: 15px;
+    border-radius: 10px;
+    font-family: monospace;
+    font-weight: 600;
+    font-size: 1.1em;
+    margin-top: 15px;
+    border: 1px solid var(--border);
+    word-wrap: break-word;
+    color: var(--accent);
+}
+#copyMsg { display: none; color: #80ed99; font-weight: 500; margin-top: 8px; }
+
+.strength-bar {
+    width: 100%;
+    height: 10px;
+    border-radius: 5px;
+    background: rgba(255,255,255,0.1);
+    overflow: hidden;
+    margin-top: 20px;
+}
+.strength-bar div {
+    height: 100%;
+    width: 0%;
+    transition: width 0.4s ease-out, background 0.4s;
+}
+#strengthText { margin-top: 8px; font-size: 0.9em; font-weight: 600; }
+.counter { font-size: 0.8em; opacity: 0.8; }
+
+.recent-container { margin-top: 25px; text-align: left; }
+.recent-container h3 { font-size: 1em; color: var(--accent); margin-bottom: 8px; }
+.recent-list {
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    padding: 10px;
+    max-height: 120px;
+    overflow-y: auto;
+    font-family: monospace;
+    font-size: 0.9em;
+}
+.recent-list div {
+    margin: 4px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 3px;
+}
+.toggle-theme {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: var(--accent);
+    border: none;
+    border-radius: 20px;
+    color: #fff;
+    padding: 8px 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.toggle-theme:hover { background: var(--primary); }
+@media (max-width: 480px) { .container { padding: 30px; } }
+</style>
+</head>
+<body class="dark">
+<button class="toggle-theme" id="themeToggle">☀️ Light Mode</button>
+
+<div class="header">
+    <h2>🌊 DeepOcean Security Tools</h2>
+</div>
+
+<div class="container">
+    <h1>Professional Password Generator</h1>
+
+    <div class="input-group">
+        <label><b>Password Length:</b></label>
+        <input type="number" id="length" value="16" min="6" max="128">
+    </div>
+    <div class="counter" id="charCount">Characters: 16</div>
+
+    <div class="options">
+        <label><input type="checkbox" id="includeUpper" checked> Include Uppercase (A–Z)</label>
+        <label><input type="checkbox" id="includeNumbers" checked> Include Numbers (0–9)</label>
+        <label><input type="checkbox" id="includeSymbols" checked> Include Symbols (!@#...)</label>
+    </div>
+
+    <button id="generateBtn" onclick="app.generatePassword()">Generate</button>
+    <button id="copyBtn" onclick="app.copyPassword()">📋 Copy</button>
+
+    <div id="password-display">Click "Generate" to create your password</div>
+    <div id="copyMsg">✅ Copied to clipboard!</div>
+
+    <div class="strength-bar"><div id="strengthFill"></div></div>
+    <div id="strengthText">Strength: N/A</div>
+
+    <div class="recent-container">
+        <h3>🕓 Recently Generated</h3>
+        <div class="recent-list" id="recentList">No passwords yet</div>
+    </div>
+</div>
+
+<script>
+class PasswordGenerator {
+    constructor() {
+        this.sets = {
+            lower: "abcdefghijklmnopqrstuvwxyz",
+            upper: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+            num: "0123456789",
+            sym: "!@#$%^&*()-_=+[]{}|;:,.<>/?`~"
+        };
+        this.recent = [];
+        this.maxRecent = 5;
+        this.dom = {
+            len: document.getElementById('length'),
+            upper: document.getElementById('includeUpper'),
+            num: document.getElementById('includeNumbers'),
+            sym: document.getElementById('includeSymbols'),
+            disp: document.getElementById('password-display'),
+            copy: document.getElementById('copyMsg'),
+            bar: document.getElementById('strengthFill'),
+            text: document.getElementById('strengthText'),
+            count: document.getElementById('charCount'),
+            recentList: document.getElementById('recentList')
+        };
+        this.dom.len.addEventListener('input', () => {
+            this.dom.count.textContent = "Characters: " + this.dom.len.value;
+        });
+    }
+    randomChar(set) { return set[Math.floor(Math.random() * set.length)]; }
+    shuffle(str) { return str.split('').sort(() => Math.random() - 0.5).join(''); }
+    generatePassword() {
+        let len = parseInt(this.dom.len.value);
+        let chars = this.sets.lower;
+        let must = [this.randomChar(this.sets.lower)];
+        if (this.dom.upper.checked) { chars += this.sets.upper; must.push(this.randomChar(this.sets.upper)); }
+        if (this.dom.num.checked) { chars += this.sets.num; must.push(this.randomChar(this.sets.num)); }
+        if (this.dom.sym.checked) { chars += this.sets.sym; must.push(this.randomChar(this.sets.sym)); }
+
+        let pass = must.join('');
+        for (let i = pass.length; i < len; i++) {
+            pass += this.randomChar(chars);
+        }
+        pass = this.shuffle(pass);
+        this.dom.disp.textContent = pass;
+        this.dom.copy.style.display = 'none';
+        this.strengthMeter(pass);
+        this.storeRecent(pass);
+    }
+    copyPassword() {
+        let pass = this.dom.disp.textContent;
+        if (pass && !pass.includes("Click")) {
+            navigator.clipboard.writeText(pass);
+            this.dom.copy.style.display = 'block';
+            setTimeout(() => this.dom.copy.style.display = 'none', 1500);
+        }
+    }
+    strengthMeter(pass) {
+        let score = 0;
+        if (/[a-z]/.test(pass)) score++;
+        if (/[A-Z]/.test(pass)) score++;
+        if (/[0-9]/.test(pass)) score++;
+        if (/[!@#$%^&*(),.?":{}|<>]/.test(pass)) score++;
+        if (pass.length >= 12) score++;
+        let pct = (score / 5) * 100;
+        let color = "#f00";
+        let text = "Weak 🔴";
+        if (score >= 4) { color = "#4caf50"; text = "Strong 🟢"; }
+        else if (score === 3) { color = "#ff9800"; text = "Medium 🟡"; }
+        this.dom.bar.style.width = pct + "%";
+        this.dom.bar.style.background = color;
+        this.dom.text.textContent = "Strength: " + text;
+    }
+    storeRecent(pass) {
+        this.recent.unshift(pass);
+        if (this.recent.length > this.maxRecent) this.recent.pop();
+        this.updateRecentUI();
+    }
+    updateRecentUI() {
+        if (this.recent.length === 0) {
+            this.dom.recentList.innerHTML = "No passwords yet";
+            return;
+        }
+        this.dom.recentList.innerHTML = this.recent.map(p => `<div>${p}</div>`).join('');
+    }
+}
+
+// Initialize app
+const app = new PasswordGenerator();
+
+// Theme toggle
+const toggleBtn = document.getElementById('themeToggle');
+toggleBtn.addEventListener('click', () => {
+    document.body.classList.toggle('dark');
+    const isDark = document.body.classList.contains('dark');
+    toggleBtn.textContent = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
+});
+</script>
+</body>
+</html>
